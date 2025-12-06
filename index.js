@@ -16,7 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173/", "https://choir-app-front.vercel.app/"],
+    origin: ["http://localhost:5173", "https://choir-app-front.vercel.app"],
     credentials: true,
   })
 );
@@ -32,6 +32,16 @@ app.use("/api/assignments", assignmentRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
+});
+
+// Health endpoint to check DB connection state in production
+const mongoose = require("mongoose");
+app.get("/api/health", (req, res) => {
+  const state = mongoose.connection.readyState; // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  res.json({
+    status: state === 1 ? "ok" : "unavailable",
+    mongooseState: state,
+  });
 });
 
 const startServer = async () => {
