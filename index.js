@@ -14,13 +14,15 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.json());
-app.use(cors({}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173/", "https://choir-app-front.vercel.app/"],
+    credentials: true,
+  })
+);
+
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
-
-if (!fs.existsSync("uploads")) {
-  fs.mkdirSync("uploads");
-}
 
 app.use("/api/auth", authRouter);
 app.use("/api/resources", resourceRouter);
