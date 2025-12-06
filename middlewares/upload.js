@@ -10,11 +10,25 @@ cloudinary.config({
 });
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => ({
-    folder: "choir_app",
-    resource_type: "auto",
-  }),
+  cloudinary,
+  params: async (req, file) => {
+    let resourceType = "raw";
+    let folder = "choir_app";
+    const mime = file.mimetype;
+
+    if (mime.startsWith("image/")) resourceType = "image";
+    else if (mime.startsWith("audio/")) resourceType = "video";
+    else if (mime.startsWith("video/")) resourceType = "video";
+    else resourceType = "raw";
+
+    return {
+      folder,
+      resource_type: resourceType,
+      type: "upload",
+      access_mode: "public",
+      public_id: `${Date.now()}-${file.originalname}`,
+    };
+  },
 });
 
 const upload = multer({ storage });

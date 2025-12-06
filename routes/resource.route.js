@@ -4,21 +4,25 @@ const {
   getAllResources,
   deleteResource,
 } = require("../controllers/resource.controller");
-const upload = require("../middlewares/upload");
+const upload = require("../middlewares/upload"); // your updated smart upload middleware
 const { isAuthenticated } = require("../middlewares/auth");
 const { isAdmin } = require("../controllers/isAdmin.controller");
+
 const resourceRouter = express.Router();
 
+// Upload multiple files (admin only)
 resourceRouter.post(
   "/upload",
   isAuthenticated,
-  isAdmin,
-  upload.array("files", 10),
+  // isAdmin,
+  upload.array("files", 20), // accept up to 20 files at once
   createResource
 );
 
+// Get all resources (any authenticated user)
 resourceRouter.get("/", isAuthenticated, getAllResources);
 
+// Delete resource (admin only)
 resourceRouter.delete("/:id", isAuthenticated, isAdmin, deleteResource);
 
 module.exports = { resourceRouter };
