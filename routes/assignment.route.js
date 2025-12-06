@@ -11,10 +11,9 @@ const { isAdmin } = require("../controllers/isAdmin.controller");
 
 assignmentRouter.use(isAuthenticated);
 
-assignmentRouter.post("/", addUserToCategory);
+assignmentRouter.post("/", isAdmin, addUserToCategory);
 
 assignmentRouter.get("/", getAssignments);
 
-assignmentRouter.delete("/:id", removeUserFromCategory);
-
+assignmentRouter.delete("/:id", isAdmin, removeUserFromCategory);
 module.exports = { assignmentRouter };

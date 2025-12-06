@@ -1,5 +1,8 @@
 const transporter = require("../config/nodemailer");
-const { sendTemporaryPasswordEmail } = require("./emailTemplate");
+const {
+  sendTemporaryPasswordEmail,
+  AssignmentEmail,
+} = require("./emailTemplate");
 require("dotenv").config();
 
 const sendEmail = async (email, subject, text) => {
@@ -17,4 +20,20 @@ const sendEmail = async (email, subject, text) => {
 
   return true;
 };
-module.exports = sendEmail;
+
+const sendAssignmentEmail = async (email, username, assignmentType) => {
+  console.log(email, username, assignmentType);
+  const htmlContent = AssignmentEmail(username, assignmentType);
+  const mailOptions = {
+    from: '"Choir Support" <' + process.env.EMAIL_USER + ">",
+    to: email,
+    subject: "Your Fellowship Service Assignment",
+    html: htmlContent,
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log(`Assignment email sent to ${email}`);
+
+  return true;
+};
+module.exports = { sendEmail, sendAssignmentEmail };

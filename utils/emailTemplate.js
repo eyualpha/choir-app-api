@@ -85,14 +85,14 @@ const sendTemporaryPasswordEmail = (subject, password) => {
   `;
 };
 
-const sendAssignmentEmail = (userName, assignmentType) => {
+const AssignmentEmail = (userName, assignmentType) => {
   return `
   <!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Choir Assignment</title>
+    <title>Your Fellowship Service Assignment</title>
     <style>
       body {
         font-family: 'Helvetica', Arial, sans-serif;
@@ -172,6 +172,4 @@ const sendAssignmentEmail = (userName, assignmentType) => {
   `;
 };
 
-module.exports = sendAssignmentEmail;
-
-module.exports = { sendTemporaryPasswordEmail };
+module.exports = { sendTemporaryPasswordEmail, AssignmentEmail };

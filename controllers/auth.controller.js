@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
-const sendEmail = require("../utils/sendEmail");
+const { sendEmail } = require("../utils/sendEmail");
 
 require("dotenv").config();
 
@@ -80,4 +80,53 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, login };
+const updatePassword = async (req, res) => {
+  try {
+    const { password, confirmPassword } = req.body;
+
+    if (!password || !confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Both password fields are required" });
+    }
+
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Passwords do not match" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        passwordHash: hashedPassword,
+        isPasswordChanged: true,
+      },
+      { new: true }
+    ).select("-passwordHash");
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update Password Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating password",
+    });
+  }
+};
+
+module.exports = { registerUser, login, updatePassword };

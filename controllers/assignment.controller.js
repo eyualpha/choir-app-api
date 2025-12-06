@@ -1,8 +1,17 @@
 const ChoirAssignment = require("../models/assignment.model");
+const User = require("../models/user.model");
+const { sendAssignmentEmail } = require("../utils/sendEmail");
 
 const addUserToCategory = async (req, res) => {
   try {
     const { userId, category } = req.body;
+
+    const targetUser = await User.findById(userId);
+    if (!targetUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
 
     const validCategories = ["leadSingers", "backupSingers", "prayerTeam"];
     if (!validCategories.includes(category)) {
@@ -27,6 +36,7 @@ const addUserToCategory = async (req, res) => {
     assignment[category].push(userId);
 
     await assignment.save();
+    await sendAssignmentEmail(targetUser.email, targetUser.name, category);
 
     res.status(200).json({
       success: true,
