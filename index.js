@@ -4,6 +4,7 @@ const cors = require("cors");
 const fs = require("fs");
 const { resourceRouter } = require("./routes/resource.route");
 const { authRouter } = require("./routes/auth.route");
+const { userRouter } = require("./routes/user.route");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ if (!fs.existsSync("uploads")) {
 
 app.use("/api/auth", authRouter);
 app.use("/api/resources", resourceRouter);
+app.use("/api/users", userRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");

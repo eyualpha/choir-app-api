@@ -1,22 +1,21 @@
 const express = require("express");
-const { createResource } = require("../controllers/resource.controller");
+const {
+  createResource,
+  getAllResources,
+} = require("../controllers/resource.controller");
 const upload = require("../middlewares/upload");
 const { isAuthenticated } = require("../middlewares/auth");
+const { isAdmin } = require("../controllers/isAdmin.controller");
 const resourceRouter = express.Router();
-
-resourceRouter.get("/", (req, res) => {
-  res.send("Resource route is working");
-});
 
 resourceRouter.post(
   "/upload",
   isAuthenticated,
+  isAdmin,
   upload.array("files", 10),
   createResource
 );
 
-resourceRouter.get("/:id", (req, res) => {
-  res.send(`Get resource with ID: ${req.params.id}`);
-});
+resourceRouter.get("/", isAuthenticated, getAllResources);
 
 module.exports = { resourceRouter };
