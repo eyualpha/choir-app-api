@@ -1,31 +1,28 @@
 const Resource = require("../models/resource.model");
 
 const createResource = async (req, res) => {
+  const { type } = req.body;
   try {
-    const { title, description, type } = req.body;
-
-    const resources = req.files.map((file) => ({
-      title,
-      description,
-      type,
-      file: {
-        url: file.path,
-        public_id: file.filename,
-        mimeType: file.mimetype,
-        size: file.size,
-      },
-      uploadedBy: req.user.id,
+    const files = req.files.map((file) => ({
+      url: file.path,
+      public_id: file.filename,
+      type: file.mimetype,
     }));
 
-    const createdResources = await Resource.insertMany(resources);
-
-    res.json({
-      message: "Resources uploaded successfully",
-      resources: createdResources,
+    const resource = await Resource.create({
+      title: req.body.title,
+      uploadedBy: req.user._id,
+      files,
+      type,
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+
+    res.status(201).json({
+      message: "Resource uploaded successfully",
+      resource,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
 

@@ -1,18 +1,20 @@
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
-const cloudinary = require("../configs/cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
+require("dotenv").config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    const folder = req.body.isGallery ? "choir/gallery" : "choir/resources";
-
-    return {
-      folder,
-      allowed_formats: ["jpg", "jpeg", "png", "mp3", "wav", "mp4", "pdf"],
-      public_id: `${Date.now()}_${file.originalname}`,
-    };
-  },
+  cloudinary: cloudinary,
+  params: async (req, file) => ({
+    folder: "choir_app",
+    resource_type: "auto",
+  }),
 });
 
 const upload = multer({ storage });
