@@ -34,7 +34,18 @@ app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  connectDB();
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error("Unable to start server - DB connection failed:", err);
+    // Exit so the platform (or you) can restart or surface the error
+    process.exit(1);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+};
+
+startServer();
