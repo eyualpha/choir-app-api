@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
     await sendEmail(
       email,
       "Your Choir Account Has Been Created",
-      `Welcome! Your temporary password is: ${tempPassword}`
+      ` ${tempPassword}`
     );
 
     res.json({ message: "User created and email sent", user });

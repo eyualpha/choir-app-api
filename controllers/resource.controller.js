@@ -1,4 +1,5 @@
 const Resource = require("../models/resource.model");
+const cloudinary = require("../config/cloudinary");
 
 const createResource = async (req, res) => {
   try {
@@ -67,4 +68,34 @@ const getAllResources = async (req, res) => {
   }
 };
 
-module.exports = { createResource, getAllResources };
+const deleteResource = async (req, res) => {
+  try {
+    const resourceId = req.params.id;
+
+    // Find the resource first
+    const resource = await Resource.findById(resourceId);
+    if (!resource) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Resource not found" });
+    }
+
+    // Delete file from Cloudinary if it exists
+    if (resource.file?.public_id) {
+      await cloudinary.uploader.destroy(resource.file.public_id);
+    }
+
+    // Delete resource from DB
+    await Resource.findByIdAndDelete(resourceId);
+
+    res.status(200).json({
+      success: true,
+      message: "Resource deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Resource Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+module.exports = { createResource, getAllResources, deleteResource };
