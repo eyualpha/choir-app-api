@@ -21,4 +21,4 @@ announcementRouter.delete("/:id", isAuthenticated, isAdmin, deleteAnnouncement);
 
 announcementRouter.get("/", isAuthenticated, getAllAnnouncements);
 
-module.exports = announcementRouter;
+module.exports = { announcementRouter };

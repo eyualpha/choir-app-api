@@ -5,7 +5,8 @@ const fs = require("fs");
 const { resourceRouter } = require("./routes/resource.route");
 const { authRouter } = require("./routes/auth.route");
 const { userRouter } = require("./routes/user.route");
-const announcementRouter = require("./routes/announcemnt.route");
+const { announcementRouter } = require("./routes/announcemnt.route");
+const { assignmentRouter } = require("./routes/assignment.route");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/resources", resourceRouter);
 app.use("/api/users", userRouter);
 app.use("/api/announcements", announcementRouter);
+app.use("/api/assignments", assignmentRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
