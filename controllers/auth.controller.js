@@ -32,7 +32,12 @@ const registerUser = async (req, res) => {
 
     res.json({ message: "User created and email sent", user });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Register User Error:", err);
+    res.status(500).json({
+      error: err.message,
+      stack: err.stack,
+      details: err,
+    });
   }
 };
 
@@ -76,7 +81,9 @@ const login = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res
+      .status(500)
+      .json({ message: "Server error", error: err.message, stack: err.stack });
   }
 };
 
@@ -125,6 +132,9 @@ const updatePassword = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error while updating password",
+      error: error.message,
+      stack: error.stack,
+      details: error,
     });
   }
 };
