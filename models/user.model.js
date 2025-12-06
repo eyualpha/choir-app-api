@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema(
       enum: ["Soprano", "Alto", "Tenor", "Bass", "Other"],
       default: "Other",
     },
+    subTeam: {
+      type: String,
+      enum: ["pray", "zema", "evang", "social"],
+      default: null,
+    },
 
     profile: {
       url: String,

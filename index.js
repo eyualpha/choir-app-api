@@ -31,7 +31,7 @@ app.use("/api/announcements", announcementRouter);
 app.use("/api/assignments", assignmentRouter);
 
 app.get("/", (req, res) => {
-  res.send("Hello, World!");
+  res.send("Choir App API is running");
 });
 
 // Health endpoint to check DB connection state in production
