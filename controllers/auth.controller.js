@@ -9,7 +9,6 @@ require("dotenv").config();
 const registerUser = async (req, res) => {
   try {
     const { name, email, role, voicePart } = req.body;
-    console.log(req.body);
 
     const tempPassword = Math.random().toString(36).slice(-8);
 
