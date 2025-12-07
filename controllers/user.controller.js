@@ -53,7 +53,12 @@ const deleteUser = async (req, res) => {
 // Expects multipart/form-data with field name "avatar"
 const updateProfilePhoto = async (req, res) => {
   try {
-    if (!req.file) {
+    const file =
+      (req.files && req.files.avatar && req.files.avatar[0]) ||
+      (req.files && req.files.file && req.files.file[0]) ||
+      req.file;
+
+    if (!file) {
       return res
         .status(400)
         .json({ success: false, message: "No file uploaded" });
@@ -84,7 +89,7 @@ const updateProfilePhoto = async (req, res) => {
             return resolve(result);
           }
         );
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
+        streamifier.createReadStream(file.buffer).pipe(stream);
       });
 
     const uploaded = await uploadFromBuffer();
