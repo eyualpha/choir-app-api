@@ -74,6 +74,8 @@ const sendTemporaryPasswordEmail = (subject, password) => {
         <p>You requested a temporary password to access your ASTUECSF CHOIR account.</p>
         <div class="password-box"><h1>${password}</h1></div>
         <p>Please use this password to log in and make sure to change it immediately after logging in for security reasons.</p>
+        <p>Here is your link to login:</p>
+        <p><a href="https://choir-app-front.vercel.app/login">login</a></p>
         <p>Welcome to ASTUECSF CHOIR! 🎶</p>
       </div>
       <div class="footer">
