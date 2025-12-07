@@ -2,6 +2,7 @@ const transporter = require("../config/nodemailer");
 const {
   sendTemporaryPasswordEmail,
   AssignmentEmail,
+  PasswordResetOtpEmail,
 } = require("./emailTemplate");
 require("dotenv").config();
 
@@ -16,6 +17,21 @@ const sendEmail = async (email, subject, text) => {
 
   await transporter.sendMail(mailOptions);
   console.log(`OTP email sent to ${email}`);
+
+  return true;
+};
+
+const sendResetOtpEmail = async (email, otp) => {
+  const htmlContent = PasswordResetOtpEmail(otp);
+  const mailOptions = {
+    from: '"Choir Support" <' + process.env.EMAIL_USER + ">",
+    to: email,
+    subject: "Your password reset code",
+    html: htmlContent,
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log(`Password reset OTP sent to ${email}`);
 
   return true;
 };
@@ -35,4 +51,4 @@ const sendAssignmentEmail = async (email, username, assignmentType) => {
 
   return true;
 };
-module.exports = { sendEmail, sendAssignmentEmail };
+module.exports = { sendEmail, sendAssignmentEmail, sendResetOtpEmail };

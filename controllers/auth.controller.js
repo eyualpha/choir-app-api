@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
-const { sendEmail } = require("../utils/sendEmail");
+const { sendEmail, sendResetOtpEmail } = require("../utils/sendEmail");
 
 require("dotenv").config();
 
@@ -108,11 +108,7 @@ const requestPasswordReset = async (req, res) => {
     user.resetOtpExpires = expires;
     await user.save();
 
-    await sendEmail(
-      user.email,
-      "Your password reset code",
-      `Your password reset code is: ${otp}. It expires in 10 minutes.`
-    );
+    await sendResetOtpEmail(user.email, otp);
 
     return res.status(200).json({
       message: "Reset code sent to email",

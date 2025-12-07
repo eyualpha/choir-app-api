@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const cloudinary = require("../config/cloudinary");
 const streamifier = require("streamifier");
+const SUBTEAM_OPTIONS = ["pray", "zema", "evang", "social", null];
 
 const getUsers = async (req, res) => {
   try {
@@ -46,6 +47,57 @@ const deleteUser = async (req, res) => {
   } catch (error) {
     console.error("Delete User Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Update a user's sub-team category (admin only)
+const updateSubTeam = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { subTeam } = req.body;
+
+    if (subTeam === undefined) {
+      return res
+        .status(400)
+        .json({ success: false, message: "subTeam is required" });
+    }
+
+    // Allow clearing the sub-team assignment by sending null/empty string
+    if (subTeam === "" || subTeam === null) {
+      subTeam = null;
+    }
+
+    if (!SUBTEAM_OPTIONS.includes(subTeam)) {
+      return res.status(400).json({
+        success: false,
+        message: `subTeam must be one of: ${SUBTEAM_OPTIONS.filter(
+          Boolean
+        ).join(", ")} or null`,
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { subTeam },
+      { new: true }
+    ).select("-passwordHash");
+
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Sub-team updated",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update SubTeam Error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -117,4 +169,4 @@ const updateProfilePhoto = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, deleteUser, updateProfilePhoto };
+module.exports = { getUsers, deleteUser, updateProfilePhoto, updateSubTeam };
