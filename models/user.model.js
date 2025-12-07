@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       public_id: String,
     },
 
+    // Password reset OTP and expiry
+    resetOtp: { type: String },
+    resetOtpExpires: { type: Date },
+
     isActive: { type: Boolean, default: true },
     isPasswordChanged: { type: Boolean, default: false },
   },
