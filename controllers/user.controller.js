@@ -53,10 +53,12 @@ const deleteUser = async (req, res) => {
 // Expects multipart/form-data with field name "avatar"
 const updateProfilePhoto = async (req, res) => {
   try {
-    const file =
-      (req.files && req.files.avatar && req.files.avatar[0]) ||
-      (req.files && req.files.file && req.files.file[0]) ||
-      req.file;
+    // Support multer.any() (array) and .single/.fields shapes
+    const file = Array.isArray(req.files)
+      ? req.files[0]
+      : (req.files && req.files.avatar && req.files.avatar[0]) ||
+        (req.files && req.files.file && req.files.file[0]) ||
+        req.file;
 
     if (!file) {
       return res

@@ -16,10 +16,7 @@ userRouter.post("/change-password", isAuthenticated, updatePassword);
 userRouter.post(
   "/profile/photo",
   isAuthenticated,
-  upload.fields([
-    { name: "avatar", maxCount: 1 },
-    { name: "file", maxCount: 1 }, // fallback field name some clients use
-  ]),
+  upload.any(), // accept any single file field to avoid Unexpected field errors
   updateProfilePhoto
 );
 
