@@ -5,13 +5,31 @@ This Express + MongoDB backend exposes everything a Choir web client needs to au
 ## Getting started
 
 1. `npm install`
-2. Copy `.env` from `.env.sample` (create if missing) and provide the following values:
+2. Copy `.env.example` to `.env` and provide the following values:
    - `PORT` – server port (default 3000)
    - `MONGODB_URI` – MongoDB connection string
    - `JWT_SECRET` – used to sign JSON Web Tokens
    - `EMAIL_USER`, `EMAIL_PASS` – nodemailer credentials for sending temporary passwords/assignment emails
    - `CLOUDINARY_*` – (name, key, secret) used by uploads
 3. `npm run dev` to start with `nodemon` (or `npm start` for production-ready run)
+
+## Tests
+
+```bash
+npm test
+npm run test:coverage
+```
+
+Tests use Jest, Supertest, and an in-memory MongoDB instance. External email and Cloudinary calls are mocked.
+
+## Docker
+
+```bash
+docker build -t choir-app-api .
+docker run --env-file .env -p 3000:3000 choir-app-api
+```
+
+The image copies the full repository (including `.git/`) and installs production dependencies with `npm ci`.
 
 The API mounts under `/api`. All protected routes require the `Authorization: Bearer <token>` header issued by the login endpoint. Tokens expire after 12 hours.
 
