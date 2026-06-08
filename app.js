@@ -6,6 +6,22 @@ const { authRouter } = require("./routes/auth.route");
 const { userRouter } = require("./routes/user.route");
 const { announcementRouter } = require("./routes/announcemnt.route");
 const { assignmentRouter } = require("./routes/assignment.route");
+const { eventRouter } = require("./routes/event.route");
+const { songRouter } = require("./routes/song.route");
+const { attendanceRouter } = require("./routes/attendance.route");
+const { notificationRouter } = require("./routes/notification.route");
+const { rehearsalRouter } = require("./routes/rehearsal.route");
+const { reportRouter } = require("./routes/report.route");
+const { setlistRouter } = require("./routes/setlist.route");
+const { volunteerRouter } = require("./routes/volunteer.route");
+const { practiceLogRouter } = require("./routes/practiceLog.route");
+const { rosterRouter } = require("./routes/roster.route");
+const { searchRouter } = require("./routes/search.route");
+const { exportRouter } = require("./routes/export.route");
+const { calendarRouter } = require("./routes/calendar.route");
+const { auditRouter } = require("./routes/audit.route");
+const { engagementRouter } = require("./routes/engagement.route");
+const { notFoundHandler, errorHandler } = require("./middlewares/errorHandler");
 
 function createApp() {
   const app = express();
@@ -25,6 +41,21 @@ function createApp() {
   app.use("/api/users", userRouter);
   app.use("/api/announcements", announcementRouter);
   app.use("/api/assignments", assignmentRouter);
+  app.use("/api/events", eventRouter);
+  app.use("/api/songs", songRouter);
+  app.use("/api/attendance", attendanceRouter);
+  app.use("/api/notifications", notificationRouter);
+  app.use("/api/rehearsals", rehearsalRouter);
+  app.use("/api/reports", reportRouter);
+  app.use("/api/setlists", setlistRouter);
+  app.use("/api/volunteers", volunteerRouter);
+  app.use("/api/practice-logs", practiceLogRouter);
+  app.use("/api/roster", rosterRouter);
+  app.use("/api/search", searchRouter);
+  app.use("/api/exports", exportRouter);
+  app.use("/api/calendar", calendarRouter);
+  app.use("/api/audit", auditRouter);
+  app.use("/api/engagement", engagementRouter);
 
   app.get("/", (req, res) => {
     res.send("Choir App API is running");
@@ -37,6 +68,9 @@ function createApp() {
       mongooseState: state,
     });
   });
+
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   return app;
 }
