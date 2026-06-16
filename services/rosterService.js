@@ -3,6 +3,7 @@ const User = require("../models/user.model");
 const AttendanceRecord = require("../models/attendance.model");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const { paginateQuery } = require("../utils/pagination");
+const { safeRegex } = require("../utils/sanitize");
 
 const EXPERIENCE_LEVELS = ["new", "developing", "experienced", "veteran"];
 const VOICE_PARTS = ["Soprano", "Alto", "Tenor", "Bass", "Other"];
@@ -28,10 +29,8 @@ const listRoster = async (query = {}) => {
   if (query.voicePart) userFilter.voicePart = query.voicePart;
   if (query.subTeam) userFilter.subTeam = query.subTeam;
   if (query.search) {
-    userFilter.$or = [
-      { name: new RegExp(query.search, "i") },
-      { email: new RegExp(query.search, "i") },
-    ];
+    const regex = safeRegex(query.search);
+    userFilter.$or = [{ name: regex }, { email: regex }];
   }
   const users = await User.find(userFilter).select("name email voicePart subTeam role createdAt");
   const profileFilter = {};
@@ -48,7 +47,7 @@ const listRoster = async (query = {}) => {
   return { roster, count: roster.length };
 };
 
-const getProfileByUserId = async (userId) => {
+const getProfileByUserId = async (userId, isDirector = false) => {
   const user = await User.findById(userId).select("-passwordHash");
   if (!user) throw new NotFoundError("User");
   let profile = await MemberProfile.findOne({ user: userId });
@@ -58,7 +57,11 @@ const getProfileByUserId = async (userId) => {
       joinedAt: user.createdAt,
     });
   }
-  return { user, profile };
+  const profileData = profile.toObject();
+  if (!isDirector) {
+    delete profileData.directorNotes;
+  }
+  return { user, profile: profileData };
 };
 
 const upsertProfile = async (userId, payload, isDirector = false) => {

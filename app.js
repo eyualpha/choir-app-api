@@ -21,11 +21,15 @@ const { exportRouter } = require("./routes/export.route");
 const { calendarRouter } = require("./routes/calendar.route");
 const { auditRouter } = require("./routes/audit.route");
 const { engagementRouter } = require("./routes/engagement.route");
+const { rsvpRouter } = require("./routes/rsvp.route");
+const { reminderRouter } = require("./routes/reminder.route");
+const { requestLogger } = require("./middlewares/requestLogger");
 const { notFoundHandler, errorHandler } = require("./middlewares/errorHandler");
 
 function createApp() {
   const app = express();
 
+  app.use(requestLogger);
   app.use(express.json());
   app.use(
     cors({
@@ -56,15 +60,23 @@ function createApp() {
   app.use("/api/calendar", calendarRouter);
   app.use("/api/audit", auditRouter);
   app.use("/api/engagement", engagementRouter);
+  app.use("/api/rsvp", rsvpRouter);
+  app.use("/api/reminders", reminderRouter);
 
-  app.get("/", (req, res) => {
-    res.send("Choir App API is running");
+  app.get("/", (_req, res) => {
+    res.json({
+      name: "HarmoniQ API",
+      description: "Intelligent choir management platform",
+      version: "2.0.0",
+      status: "running",
+    });
   });
 
-  app.get("/api/health", (req, res) => {
+  app.get("/api/health", (_req, res) => {
     const state = mongoose.connection.readyState;
     res.json({
       status: state === 1 ? "ok" : "unavailable",
+      service: "HarmoniQ API",
       mongooseState: state,
     });
   });

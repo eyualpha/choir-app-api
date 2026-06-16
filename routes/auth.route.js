@@ -6,14 +6,16 @@ const {
   verifyResetOtp,
   setNewPassword,
 } = require("../controllers/auth.controller");
-const { isAdmin } = require("../controllers/isAdmin.controller");
+const { isAuthenticated } = require("../middlewares/auth");
+const { isAdmin } = require("../middlewares/isAdmin");
+const { authLimiter, otpLimiter } = require("../middlewares/rateLimiter");
 
 const authRouter = express.Router();
 
-authRouter.post("/register", registerUser);
-authRouter.post("/login", login);
-authRouter.post("/reset-password", requestPasswordReset);
-authRouter.post("/reset-password/verify", verifyResetOtp);
-authRouter.post("/reset-password/set", setNewPassword);
+authRouter.post("/register", isAuthenticated, isAdmin, registerUser);
+authRouter.post("/login", authLimiter, login);
+authRouter.post("/reset-password", otpLimiter, requestPasswordReset);
+authRouter.post("/reset-password/verify", otpLimiter, verifyResetOtp);
+authRouter.post("/reset-password/set", otpLimiter, setNewPassword);
 
 module.exports = { authRouter };

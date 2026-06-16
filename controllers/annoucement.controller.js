@@ -1,15 +1,32 @@
 const Announcement = require("../models/annoucement.model");
+const { uploadBufferToCloudinary, destroyCloudinaryAsset } = require("../utils/cloudinaryUpload");
 
 const createAnnouncement = async (req, res) => {
   try {
     const { title, message } = req.body;
 
-    const attachments =
-      req.files?.map((file) => ({
-        url: file.path,
-        public_id: file.filename,
-        mimeType: file.mimetype,
-      })) || [];
+    if (!title || !message) {
+      return res.status(400).json({
+        success: false,
+        message: "Title and message are required",
+      });
+    }
+
+    const attachments = [];
+    if (req.files?.length) {
+      for (const file of req.files) {
+        const uploaded = await uploadBufferToCloudinary(
+          file.buffer,
+          file.mimetype,
+          "announcements"
+        );
+        attachments.push({
+          url: uploaded.secure_url,
+          public_id: uploaded.public_id,
+          mimeType: file.mimetype,
+        });
+      }
+    }
 
     const announcement = await Announcement.create({
       title,
@@ -48,13 +65,17 @@ const getAllAnnouncements = async (req, res) => {
 
 const deleteAnnouncement = async (req, res) => {
   try {
-    const announcement = await Announcement.findByIdAndDelete(req.params.id);
+    const announcement = await Announcement.findById(req.params.id);
 
     if (!announcement) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Announcement not found" });
+      return res.status(404).json({ success: false, message: "Announcement not found" });
     }
+
+    for (const attachment of announcement.attachments || []) {
+      await destroyCloudinaryAsset(attachment.public_id, attachment.mimeType);
+    }
+
+    await Announcement.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       success: true,

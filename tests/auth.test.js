@@ -3,25 +3,43 @@ const bcrypt = require("bcrypt");
 const { createApp } = require("../app");
 const User = require("../models/user.model");
 const { sendEmail, sendResetOtpEmail } = require("../utils/sendEmail");
-const { createUser } = require("./helpers");
+const { createUser, buildAuthHeader } = require("./helpers");
+const { hashOtp } = require("../utils/otp");
 
 describe("Auth routes", () => {
   const app = createApp();
 
-  it("registers a user and sends welcome email", async () => {
-    const res = await request(app).post("/api/auth/register").send({
-      name: "New Member",
-      email: "new@test.com",
-      role: "member",
-      voicePart: "Alto",
-    });
+  it("registers a user as admin and sends welcome email", async () => {
+    const admin = await createUser({ email: "admin@test.com", role: "admin" });
+    const auth = buildAuthHeader(admin);
 
-    expect(res.status).toBe(200);
+    const res = await request(app)
+      .post("/api/auth/register")
+      .set("Authorization", auth)
+      .send({
+        name: "New Member",
+        email: "new@test.com",
+        voicePart: "Alto",
+      });
+
+    expect(res.status).toBe(201);
     expect(res.body.message).toMatch(/created/i);
+    expect(res.body.user.passwordHash).toBeUndefined();
     expect(sendEmail).toHaveBeenCalled();
     const saved = await User.findOne({ email: "new@test.com" });
     expect(saved).toBeTruthy();
     expect(saved.name).toBe("New Member");
+    expect(saved.role).toBe("member");
+  });
+
+  it("rejects registration without admin token", async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Hacker",
+      email: "hack@test.com",
+      role: "admin",
+    });
+
+    expect(res.status).toBe(401);
   });
 
   it("logs in with valid credentials", async () => {
@@ -69,12 +87,13 @@ describe("Auth routes", () => {
     expect(res.status).toBe(200);
     expect(sendResetOtpEmail).toHaveBeenCalled();
     const user = await User.findOne({ email: "reset@test.com" });
-    expect(user.resetOtp).toHaveLength(6);
+    expect(user.resetOtp).toBeTruthy();
+    expect(user.resetOtp.length).toBeGreaterThan(10);
   });
 
   it("verifies OTP and sets a new password", async () => {
     const user = await createUser({ email: "otp@test.com" });
-    user.resetOtp = "123456";
+    user.resetOtp = await hashOtp("123456");
     user.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
@@ -86,13 +105,13 @@ describe("Auth routes", () => {
     const setPwd = await request(app).post("/api/auth/reset-password/set").send({
       email: "otp@test.com",
       otp: "123456",
-      password: "newpass1",
-      confirmPassword: "newpass1",
+      password: "newpass12",
+      confirmPassword: "newpass12",
     });
     expect(setPwd.status).toBe(200);
 
     const updated = await User.findOne({ email: "otp@test.com" });
-    const matches = await bcrypt.compare("newpass1", updated.passwordHash);
+    const matches = await bcrypt.compare("newpass12", updated.passwordHash);
     expect(matches).toBe(true);
     expect(updated.isPasswordChanged).toBe(true);
   });

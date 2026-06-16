@@ -6,7 +6,7 @@ const {
 } = require("../controllers/resource.controller");
 const upload = require("../middlewares/upload"); // your updated smart upload middleware
 const { isAuthenticated } = require("../middlewares/auth");
-const { isAdmin } = require("../controllers/isAdmin.controller");
+const { isAdmin } = require("../middlewares/isAdmin");
 
 const resourceRouter = express.Router();
 
@@ -14,8 +14,8 @@ const resourceRouter = express.Router();
 resourceRouter.post(
   "/upload",
   isAuthenticated,
-  // isAdmin,
-  upload.array("files", 20), // accept up to 20 files at once
+  isAdmin,
+  upload.array("files", 20),
   createResource
 );
 

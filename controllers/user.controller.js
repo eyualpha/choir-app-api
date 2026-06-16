@@ -2,6 +2,8 @@ const User = require("../models/user.model");
 const cloudinary = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const SUBTEAM_OPTIONS = ["pray", "zema", "evang", "social", null];
+const VOICE_PARTS = ["Soprano", "Alto", "Tenor", "Bass", "Other"];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const getUsers = async (req, res) => {
   try {
@@ -169,4 +171,87 @@ const updateProfilePhoto = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, deleteUser, updateProfilePhoto, updateSubTeam };
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (req.user.role !== "admin" && String(req.user.id) !== String(userId)) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const { name, email, voicePart } = req.body;
+    const updates = {};
+
+    if (name !== undefined) updates.name = name;
+    if (email !== undefined) {
+      if (!EMAIL_REGEX.test(email)) {
+        return res.status(400).json({ success: false, message: "Invalid email format" });
+      }
+      const existing = await User.findOne({ email, _id: { $ne: userId } });
+      if (existing) {
+        return res.status(409).json({ success: false, message: "Email already in use" });
+      }
+      updates.email = email;
+    }
+    if (voicePart !== undefined) {
+      if (!VOICE_PARTS.includes(voicePart)) {
+        return res.status(400).json({
+          success: false,
+          message: `voicePart must be one of: ${VOICE_PARTS.join(", ")}`,
+        });
+      }
+      updates.voicePart = voicePart;
+    }
+
+    if (!Object.keys(updates).length) {
+      return res.status(400).json({ success: false, message: "No valid fields to update" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    }).select("-passwordHash");
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const setActiveStatus = async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    if (typeof isActive !== "boolean") {
+      return res.status(400).json({ success: false, message: "isActive boolean is required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive },
+      { new: true }
+    ).select("-passwordHash");
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: isActive ? "User activated" : "User deactivated",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Set Active Status Error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+module.exports = { getUsers, deleteUser, updateProfilePhoto, updateSubTeam, updateProfile, setActiveStatus };

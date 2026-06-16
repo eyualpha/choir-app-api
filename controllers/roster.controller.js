@@ -1,5 +1,6 @@
 const rosterService = require("../services/rosterService");
 const { success } = require("../utils/apiResponse");
+const { ForbiddenError } = require("../utils/errors");
 
 const listRoster = async (req, res) => {
   const result = await rosterService.listRoster(req.query);
@@ -7,13 +8,17 @@ const listRoster = async (req, res) => {
 };
 
 const getProfile = async (req, res) => {
-  const profile = await rosterService.getProfileByUserId(req.params.userId);
+  const isDirector = req.user.role === "admin";
+  const profile = await rosterService.getProfileByUserId(req.params.userId, isDirector);
   return success(res, profile);
 };
 
 const upsertProfile = async (req, res) => {
   const isDirector = req.user.role === "admin";
-  const targetId = req.params.userId || req.user.id;
+  const targetId = req.params.userId;
+  if (!isDirector && String(req.user.id) !== String(targetId)) {
+    throw new ForbiddenError("You can only update your own profile");
+  }
   const profile = await rosterService.upsertProfile(targetId, req.body, isDirector);
   return success(res, profile, "Profile updated");
 };

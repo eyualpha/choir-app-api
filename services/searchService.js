@@ -5,6 +5,7 @@ const Setlist = require("../models/setlist.model");
 const Resource = require("../models/resource.model");
 const Announcement = require("../models/annoucement.model");
 const { ValidationError } = require("../utils/errors");
+const { safeRegex } = require("../utils/sanitize");
 
 const MIN_QUERY_LENGTH = 2;
 const MAX_RESULTS_PER_TYPE = 10;
@@ -18,13 +19,14 @@ const normalizeQuery = (query) => {
 };
 
 const searchMembers = async (term, limit = MAX_RESULTS_PER_TYPE) => {
+  const regex = safeRegex(term);
   return User.find({
     isActive: true,
     $or: [
-      { name: new RegExp(term, "i") },
-      { email: new RegExp(term, "i") },
-      { voicePart: new RegExp(term, "i") },
-      { subTeam: new RegExp(term, "i") },
+      { name: regex },
+      { email: regex },
+      { voicePart: regex },
+      { subTeam: regex },
     ],
   })
     .select("name email voicePart role subTeam")
@@ -32,25 +34,19 @@ const searchMembers = async (term, limit = MAX_RESULTS_PER_TYPE) => {
 };
 
 const searchSongs = async (term, limit = MAX_RESULTS_PER_TYPE) => {
+  const regex = safeRegex(term);
   return Song.find({
     isActive: true,
-    $or: [
-      { title: new RegExp(term, "i") },
-      { composer: new RegExp(term, "i") },
-      { tags: new RegExp(term, "i") },
-    ],
+    $or: [{ title: regex }, { composer: regex }, { tags: regex }],
   })
     .select("title composer category difficulty keySignature")
     .limit(limit);
 };
 
 const searchEvents = async (term, limit = MAX_RESULTS_PER_TYPE) => {
+  const regex = safeRegex(term);
   return ChoirEvent.find({
-    $or: [
-      { title: new RegExp(term, "i") },
-      { description: new RegExp(term, "i") },
-      { location: new RegExp(term, "i") },
-    ],
+    $or: [{ title: regex }, { description: regex }, { location: regex }],
   })
     .select("title eventType status startAt endAt location")
     .sort({ startAt: -1 })
@@ -58,30 +54,29 @@ const searchEvents = async (term, limit = MAX_RESULTS_PER_TYPE) => {
 };
 
 const searchSetlists = async (term, limit = MAX_RESULTS_PER_TYPE) => {
+  const regex = safeRegex(term);
   return Setlist.find({
     status: { $ne: "archived" },
-    $or: [{ title: new RegExp(term, "i") }, { description: new RegExp(term, "i") }, { tags: term }],
+    $or: [{ title: regex }, { description: regex }, { tags: term }],
   })
     .select("title status totalEstimatedMinutes isTemplate")
     .limit(limit);
 };
 
 const searchResources = async (term, limit = MAX_RESULTS_PER_TYPE) => {
+  const regex = safeRegex(term);
   return Resource.find({
-    $or: [
-      { title: new RegExp(term, "i") },
-      { description: new RegExp(term, "i") },
-      { type: new RegExp(term, "i") },
-    ],
+    $or: [{ title: regex }, { description: regex }, { type: regex }],
   })
-    .select("title type url createdAt")
+    .select("title type file createdAt")
     .limit(limit);
 };
 
 const searchAnnouncements = async (term, limit = MAX_RESULTS_PER_TYPE) => {
+  const regex = safeRegex(term);
   return Announcement.find({
     isActive: true,
-    $or: [{ title: new RegExp(term, "i") }, { message: new RegExp(term, "i") }],
+    $or: [{ title: regex }, { message: regex }],
   })
     .select("title message createdAt")
     .sort({ createdAt: -1 })

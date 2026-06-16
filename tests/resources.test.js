@@ -6,12 +6,30 @@ const { createUser, buildAuthHeader } = require("./helpers");
 describe("Resource routes", () => {
   const app = createApp();
 
-  it("rejects upload without title", async () => {
-    const member = await createUser({ email: "resource-no-title@test.com" });
+  it("rejects upload from non-admin members", async () => {
+    const member = await createUser({ email: "resource-member@test.com" });
 
     const res = await request(app)
       .post("/api/resources/upload")
       .set("Authorization", buildAuthHeader(member))
+      .field("title", "Sunday Hymn")
+      .attach("files", Buffer.from("pdf-content"), {
+        filename: "sheet.pdf",
+        contentType: "application/pdf",
+      });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("rejects upload without title", async () => {
+    const admin = await createUser({
+      email: "resource-no-title@test.com",
+      role: "admin",
+    });
+
+    const res = await request(app)
+      .post("/api/resources/upload")
+      .set("Authorization", buildAuthHeader(admin))
       .attach("files", Buffer.from("pdf-content"), {
         filename: "sheet.pdf",
         contentType: "application/pdf",
@@ -20,12 +38,15 @@ describe("Resource routes", () => {
     expect(res.status).toBe(400);
   });
 
-  it("uploads a resource file", async () => {
-    const member = await createUser({ email: "resource-upload@test.com" });
+  it("uploads a resource file as admin", async () => {
+    const admin = await createUser({
+      email: "resource-upload@test.com",
+      role: "admin",
+    });
 
     const res = await request(app)
       .post("/api/resources/upload")
-      .set("Authorization", buildAuthHeader(member))
+      .set("Authorization", buildAuthHeader(admin))
       .field("title", "Sunday Hymn")
       .field("description", "Main song")
       .attach("files", Buffer.from("pdf-content"), {

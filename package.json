@@ -1,7 +1,7 @@
 {
-  "name": "choir-app-api",
-  "version": "1.0.0",
-  "description": "",
+  "name": "harmoniq-api",
+  "version": "2.0.0",
+  "description": "HarmoniQ — intelligent choir management API",
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand",
@@ -9,7 +9,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
-  "keywords": [],
+  "keywords": ["choir", "harmoniq", "music", "api"],
   "author": "Eyu Ashenafi <eyuashenafi533@gmail.com>",
   "license": "ISC",
   "dependencies": {
@@ -18,17 +18,17 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.5.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.1",
     "multer": "^2.0.2",
-    "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.11",
-    "nodemon": "^3.1.11",
     "streamifier": "^0.1.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",
     "mongodb-memory-server": "^10.1.4",
+    "nodemon": "^3.1.11",
     "supertest": "^7.1.0"
   }
 }

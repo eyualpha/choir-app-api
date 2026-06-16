@@ -1,26 +1,11 @@
 const Resource = require("../models/resource.model");
-const cloudinary = require("../config/cloudinary");
-const streamifier = require("streamifier");
+const {
+  uploadBufferToCloudinary,
+  destroyCloudinaryAsset,
+} = require("../utils/cloudinaryUpload");
 const {
   inferResourceType,
-  cloudResourceTypeForMime,
 } = require("../utils/resourceType");
-
-// Helper to upload a single file buffer to Cloudinary
-const uploadToCloudinary = (fileBuffer, mimetype, folder = "uploads") => {
-  const resource_type = cloudResourceTypeForMime(mimetype);
-
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { resource_type, folder },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-    streamifier.createReadStream(fileBuffer).pipe(uploadStream);
-  });
-};
 
 /**
  * Create resources - multiple files allowed
@@ -50,7 +35,7 @@ const createResource = async (req, res) => {
       const inferredType = inferResourceType(mimeType, explicitType);
 
       // Upload to Cloudinary
-      const uploadedFile = await uploadToCloudinary(file.buffer, mimeType);
+      const uploadedFile = await uploadBufferToCloudinary(file.buffer, mimeType);
 
       const resourceDoc = await Resource.create({
         title,
@@ -115,9 +100,7 @@ const deleteResource = async (req, res) => {
 
     const publicId = resource.file?.public_id;
     if (publicId) {
-      const mime = resource.file?.mimeType;
-      const resource_type = cloudResourceTypeForMime(mime);
-      await cloudinary.uploader.destroy(publicId, { resource_type });
+      await destroyCloudinaryAsset(publicId, resource.file?.mimeType);
     }
 
     await Resource.findByIdAndDelete(resourceId);
