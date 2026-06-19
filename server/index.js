@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
+const express = require("express");
 
-// Load .env from server folder, then repo root (for monorepo layout)
 const envPaths = [
   path.join(__dirname, ".env"),
   path.join(__dirname, "..", ".env"),
@@ -18,29 +18,50 @@ const validateEnv = () => {
   const required = ["MONGODB_URI", "JWT_SECRET"];
   const missing = required.filter((key) => !process.env[key]);
   if (missing.length) {
-    console.error(`Missing required environment variables: ${missing.join(", ")}`);
-    process.exit(1);
+    throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
   }
   if (process.env.JWT_SECRET.length < 32) {
-    console.error("JWT_SECRET must be at least 32 characters for security");
-    process.exit(1);
+    throw new Error("JWT_SECRET must be at least 32 characters for security");
   }
 };
 
-validateEnv();
+// Vercel requires an Express import + exported app from index.js
+const app = express();
 
-const PORT = process.env.PORT || 3000;
-
-const startServer = async () => {
+app.use(async (req, res, next) => {
   try {
-    const app = await getApp();
-    app.listen(PORT, () => {
-      console.log(`HarmoniQ API running on port ${PORT}`);
-    });
+    const realApp = await getApp();
+    realApp(req, res, next);
   } catch (err) {
-    console.error("Unable to start server - DB connection failed");
+    console.error("HarmoniQ API init failed:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Server initialization failed",
+      detail: process.env.VERCEL ? undefined : err.message,
+    });
+  }
+});
+
+module.exports = app;
+
+// Local dev: node server/index.js
+if (require.main === module) {
+  try {
+    validateEnv();
+  } catch (err) {
+    console.error(err.message);
     process.exit(1);
   }
-};
 
-startServer();
+  const PORT = process.env.PORT || 3000;
+  getApp()
+    .then((realApp) => {
+      realApp.listen(PORT, () => {
+        console.log(`HarmoniQ API running on port ${PORT}`);
+      });
+    })
+    .catch(() => {
+      console.error("Unable to start server - DB connection failed");
+      process.exit(1);
+    });
+}
