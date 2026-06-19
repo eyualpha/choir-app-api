@@ -1,0 +1,5 @@
+{
+  "watch": ["index.js", "config", "controllers", "middlewares", "models", "routes", "services", "utils", "validators"],
+  "ext": "js,json",
+  "ignore": ["tests", "node_modules", "coverage"]
+}
