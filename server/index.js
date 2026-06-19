@@ -12,8 +12,7 @@ for (const envPath of envPaths) {
   }
 }
 
-const connectDB = require("./config/mongodb");
-const { createApp } = require("./app");
+const { getApp } = require("./bootstrap");
 
 const validateEnv = () => {
   const required = ["MONGODB_URI", "JWT_SECRET"];
@@ -31,19 +30,17 @@ const validateEnv = () => {
 validateEnv();
 
 const PORT = process.env.PORT || 3000;
-const app = createApp();
 
 const startServer = async () => {
   try {
-    await connectDB();
+    const app = await getApp();
+    app.listen(PORT, () => {
+      console.log(`HarmoniQ API running on port ${PORT}`);
+    });
   } catch (err) {
     console.error("Unable to start server - DB connection failed");
     process.exit(1);
   }
-
-  app.listen(PORT, () => {
-    console.log(`HarmoniQ API running on port ${PORT}`);
-  });
 };
 
 startServer();

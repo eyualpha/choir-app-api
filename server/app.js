@@ -27,16 +27,24 @@ const { notFoundHandler, errorHandler } = require("./middlewares/errorHandler");
 function createApp() {
   const app = express();
 
+  const corsOrigins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:5173",
+    "https://choir-app-front.vercel.app",
+    process.env.CLIENT_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+    ...(process.env.CORS_ORIGINS || "")
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean),
+  ].filter(Boolean);
+
   app.use(requestLogger);
   app.use(express.json());
   app.use(
     cors({
-      origin: [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:5173",
-        "https://choir-app-front.vercel.app",
-      ],
+      origin: corsOrigins,
       credentials: true,
     })
   );

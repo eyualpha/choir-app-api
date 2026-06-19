@@ -10,6 +10,7 @@
     "test": "npm --prefix server test",
     "test:coverage": "npm --prefix server run test:coverage",
     "build:client": "npm --prefix client run build",
-    "seed:admin": "npm --prefix server run seed:admin"
+    "seed:admin": "npm --prefix server run seed:admin",
+    "seed:demo": "npm --prefix server run seed:demo"
   }
 }

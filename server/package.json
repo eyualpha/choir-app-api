@@ -8,7 +8,8 @@
     "test:coverage": "jest --runInBand --coverage",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "seed:admin": "node scripts/seed-admin.js"
+    "seed:admin": "node scripts/seed-admin.js",
+    "seed:demo": "node scripts/seed-demo.js"
   },
   "keywords": ["choir", "harmoniq", "music", "api"],
   "author": "Eyu Ashenafi <eyuashenafi533@gmail.com>",

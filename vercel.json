@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.com/vercel.json",
+  "installCommand": "npm install --prefix server",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api" }
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "server/**"
+    }
+  }
+}
