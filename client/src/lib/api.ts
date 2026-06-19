@@ -18,7 +18,9 @@ const unauthorizedListeners = new Set<UnauthorizedListener>();
 
 export function onUnauthorized(listener: UnauthorizedListener) {
   unauthorizedListeners.add(listener);
-  return () => unauthorizedListeners.delete(listener);
+  return () => {
+    unauthorizedListeners.delete(listener);
+  };
 }
 
 function notifyUnauthorized() {
