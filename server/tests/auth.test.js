@@ -1,6 +1,6 @@
 const request = require("supertest");
 const bcrypt = require("bcrypt");
-const { createApp } = require("../app");
+const { createApp } = require("../expressApp");
 const User = require("../models/user.model");
 const { sendEmail, sendResetOtpEmail } = require("../utils/sendEmail");
 const { createUser, buildAuthHeader } = require("./helpers");

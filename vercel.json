@@ -1,13 +1,22 @@
 {
   "$schema": "https://openapi.vercel.com/vercel.json",
+  "version": 2,
   "installCommand": "npm install --prefix server",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["server/**"]
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.js" }
   ],
   "functions": {
     "api/index.js": {
-      "maxDuration": 30,
-      "includeFiles": "server/**"
+      "maxDuration": 30
     }
   }
 }

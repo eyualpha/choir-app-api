@@ -7,7 +7,7 @@ module.exports = {
     "controllers/**/*.js",
     "middlewares/**/*.js",
     "utils/**/*.js",
-    "app.js",
+    "expressApp.js",
     "!**/node_modules/**",
   ],
 };

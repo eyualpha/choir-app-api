@@ -1,5 +1,5 @@
 const request = require("supertest");
-const { createApp } = require("../app");
+const { createApp } = require("../expressApp");
 const Announcement = require("../models/annoucement.model");
 const { createUser, buildAuthHeader } = require("./helpers");
 

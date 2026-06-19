@@ -1,5 +1,5 @@
 const request = require("supertest");
-const { createApp } = require("../app");
+const { createApp } = require("../expressApp");
 
 describe("Health endpoints", () => {
   const app = createApp();

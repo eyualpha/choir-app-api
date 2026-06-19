@@ -1,5 +1,5 @@
 const connectDB = require("./config/mongodb");
-const { createApp } = require("./app");
+const { createApp } = require("./expressApp");
 
 const CACHE_KEY = "__harmoniqApp";
 

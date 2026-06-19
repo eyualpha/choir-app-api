@@ -1,5 +1,5 @@
 const request = require("supertest");
-const { createApp } = require("../app");
+const { createApp } = require("../expressApp");
 const ChoirAssignment = require("../models/assignment.model");
 const { sendAssignmentEmail } = require("../utils/sendEmail");
 const { createUser, buildAuthHeader } = require("./helpers");

@@ -1,5 +1,5 @@
 const request = require("supertest");
-const { createApp } = require("../app");
+const { createApp } = require("../expressApp");
 const { createUser, buildAuthHeader } = require("./helpers");
 
 describe("Setlist routes", () => {
