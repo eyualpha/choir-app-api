@@ -1,6 +1,5 @@
 import type { ApiErrorBody } from "./types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import { getApiUrl } from "./api-config";
 
 export class ApiError extends Error {
   status: number;
@@ -66,7 +65,7 @@ export async function api<T = unknown>(
     headers.set("Content-Type", "application/json");
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${getApiUrl()}${path}`, {
     ...fetchOptions,
     headers,
     body: json !== undefined ? JSON.stringify(json) : fetchOptions.body,
@@ -93,7 +92,7 @@ export async function apiForm<T = unknown>(
   const headers = new Headers();
   if (authToken) headers.set("Authorization", `Bearer ${authToken}`);
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${getApiUrl()}${path}`, {
     method: "POST",
     headers,
     body: formData,
@@ -109,4 +108,4 @@ export async function apiForm<T = unknown>(
   return data;
 }
 
-export { API_URL };
+export { getApiUrl };
